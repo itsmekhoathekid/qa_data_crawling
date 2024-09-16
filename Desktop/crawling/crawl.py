@@ -226,11 +226,11 @@ for chapter in range(1,8):
 
         Click_start_button(driver)
         Select_type_of_question(driver)
-        j+=1
+        
         
         try:
             for i in range(1,33):
-                
+                j+=1
                 suffix = '{:05}'.format(0 + i)
                 prefix = f'L{chapter}'
                 id = f"{prefix}{suffix}"
@@ -238,7 +238,7 @@ for chapter in range(1,8):
                     QAs = get_QAs_element(driver)
                     pdf = FPDF()
                     take_element_screenshot(driver, element=QAs, folder_path=f'pictures//Math//chap_{chapter}',
-                                            pdf_file_name=f'link_{i}',pdf=pdf)
+                                            pdf_file_name=f'link_{j}',pdf=pdf)
                     question = get_question(driver)
                     difficulty = get_difficulty(driver)
                     options = get_options(driver)
