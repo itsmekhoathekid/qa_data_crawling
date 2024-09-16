@@ -164,9 +164,10 @@ def get_QAs_element(driver):
     QAs_element = driver.find_element(By.CSS_SELECTOR, 'div.col-sm-11')
     return QAs_element
 
-def take_element_screenshot(driver, element, folder_path, pdf_file_name,pdf):
-    # Sanitize the PDF file name
-    
+from PIL import Image
+import os
+
+def take_element_screenshot(driver, element, folder_path, pdf_file_name, pdf, id):
     # Check if the folder exists, if not, create it
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
@@ -177,7 +178,11 @@ def take_element_screenshot(driver, element, folder_path, pdf_file_name,pdf):
     # Create a new PDF or load existing PDF
     pdf.add_page()  # Add a page to start the PDF
     
-    # Capture screenshot of the element and save it temporarily as a PNG
+    # Add the ID at the top of the page
+    pdf.set_font("Arial", size=12)
+    pdf.cell(200, 10, f"ID: {id}", ln=True, align='L')  # ID text at the top left of the page
+    
+    # Capture screenshot of the question element and save it temporarily as a PNG
     screenshot_file_path = os.path.join(folder_path, 'temp_screenshot.png')
     element.screenshot(screenshot_file_path)
     print(f"Screenshot of element saved temporarily at {screenshot_file_path}")
@@ -191,27 +196,36 @@ def take_element_screenshot(driver, element, folder_path, pdf_file_name,pdf):
     mm_width = img_width * 0.264583
     mm_height = img_height * 0.264583
 
-    # question image
-    pdf.image(screenshot_file_path, 10, 0, mm_width, mm_height)
+    # Add the question image below the ID
+    y_position = 20  # Leave some space below the ID
+    pdf.image(screenshot_file_path, 10, y_position, mm_width, mm_height)
     
-    # answer image
-    element2 = select_key_and_get_answer_and_explain(driver)
-    screenshot_file_path = os.path.join(folder_path, 'temp_screenshot1.png')
-    element2.screenshot(screenshot_file_path)
-    image = Image.open(screenshot_file_path)
-    image = image.convert('RGB')
+    # Capture screenshot of the answer element and save it temporarily as a PNG
+    element2 = select_key_and_get_answer_and_explain(driver)  # Assuming this function returns a web element
+    screenshot_file_path_answer = os.path.join(folder_path, 'temp_screenshot_answer.png')
+    element2.screenshot(screenshot_file_path_answer)
+    print(f"Screenshot of answer saved temporarily at {screenshot_file_path_answer}")
     
-    # Get image dimensions and convert to millimeters (assuming 96 DPI)
-    img_width, img_height = image.size
-    mm_width = img_width * 0.264583
-    mm_height = img_height * 0.264583
-    pdf.image(screenshot_file_path, 10, pdf.h/2, mm_width, mm_height)
+    # Open the answer image and convert to RGB
+    image_answer = Image.open(screenshot_file_path_answer)
+    image_answer = image_answer.convert('RGB')
 
+    # Get image dimensions for the answer
+    img_width_answer, img_height_answer = image_answer.size
+    mm_width_answer = img_width_answer * 0.264583
+    mm_height_answer = img_height_answer * 0.264583
+
+    # Add the answer image below the question image
+    pdf.image(screenshot_file_path_answer, 10, y_position + mm_height + 10, mm_width_answer, mm_height_answer)  # 10mm padding
+
+    # Save the updated PDF
     pdf.output(pdf_file_path)
     print(f"Screenshot added to PDF file at {pdf_file_path}")
     
-    # Optionally, remove the temporary screenshot file
+    # Optionally, remove the temporary screenshot files
     os.remove(screenshot_file_path)
+    os.remove(screenshot_file_path_answer)
+
 
 file_path = 'Link_Maths.json'
 with open(file_path, 'r', encoding='utf-8') as file:
@@ -229,16 +243,16 @@ for chapter in range(1,8):
         
         
         try:
-            for i in range(1,33):
+            for i in range(1,2):
                 j+=1
-                suffix = '{:05}'.format(0 + i)
-                prefix = f'L{chapter}'
+                suffix = '{:05}'.format(0 + j)
+                prefix = f'T{str(chapter).zfill(2)}'
                 id = f"{prefix}{suffix}"
                 try:
                     QAs = get_QAs_element(driver)
                     pdf = FPDF()
                     take_element_screenshot(driver, element=QAs, folder_path=f'pictures//Math//chap_{chapter}',
-                                            pdf_file_name=f'qa_{id}',pdf=pdf)
+                                            pdf_file_name=f'qa_{id}',pdf=pdf, id = id)
                     question = get_question(driver)
                     difficulty = get_difficulty(driver)
                     options = get_options(driver)
@@ -249,6 +263,7 @@ for chapter in range(1,8):
                     # Dump_contents_Json(id, question, src, difficulty, options, answer, explain ,'Chemistry_C1.NO1.json')
                 
                     print(f"==================Question {i} processed and saved.=====================")
+                    break
                 except NoSuchElementException as e:
                     try:
                         time.sleep(4)
