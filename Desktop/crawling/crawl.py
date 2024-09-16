@@ -14,7 +14,7 @@ from PIL import Image
 def Create_webdriver():
     options = webdriver.EdgeOptions()
     options.add_experimental_option("detach", True)
-    options.add_argument("--window-size=1000,600")
+    options.add_argument("--window-size=1500,1000")
     options.add_argument("--disable-notifications")
 
     # Khởi tạo WebDriver cho Microsoft Edge
@@ -183,48 +183,48 @@ def take_element_screenshot(driver, element, folder_path, pdf_file_name, pdf, id
     pdf.cell(200, 10, f"ID: {id}", ln=True, align='L')  # ID text at the top left of the page
     
     # Capture screenshot of the question element and save it temporarily as a PNG
-    screenshot_file_path = os.path.join(folder_path, 'temp_screenshot.png')
+    screenshot_file_path = os.path.join(folder_path, f'q_{id}.png')
     element.screenshot(screenshot_file_path)
     print(f"Screenshot of element saved temporarily at {screenshot_file_path}")
     
-    # Open the image using PIL and convert to RGB
-    image = Image.open(screenshot_file_path)
-    image = image.convert('RGB')
+    # # Open the image using PIL and convert to RGB
+    # image = Image.open(screenshot_file_path)
+    # image = image.convert('RGB')
     
-    # Get image dimensions and convert to millimeters (assuming 96 DPI)
-    img_width, img_height = image.size
-    mm_width = img_width * 0.264583
-    mm_height = img_height * 0.264583
+    # # Get image dimensions and convert to millimeters (assuming 96 DPI)
+    # img_width, img_height = image.size
+    # mm_width = img_width * 0.264583
+    # mm_height = img_height * 0.264583
 
-    # Add the question image below the ID
-    y_position = 20  # Leave some space below the ID
-    pdf.image(screenshot_file_path, 10, y_position, mm_width, mm_height)
+    # # Add the question image below the ID
+    # y_position = 20  # Leave some space below the ID
+    # pdf.image(screenshot_file_path, 10, y_position, mm_width, mm_height)
     
     # Capture screenshot of the answer element and save it temporarily as a PNG
     element2 = select_key_and_get_answer_and_explain(driver)  # Assuming this function returns a web element
-    screenshot_file_path_answer = os.path.join(folder_path, 'temp_screenshot_answer.png')
+    screenshot_file_path_answer = os.path.join(folder_path, f'a_{id}.png')
     element2.screenshot(screenshot_file_path_answer)
     print(f"Screenshot of answer saved temporarily at {screenshot_file_path_answer}")
     
-    # Open the answer image and convert to RGB
-    image_answer = Image.open(screenshot_file_path_answer)
-    image_answer = image_answer.convert('RGB')
+    # # Open the answer image and convert to RGB
+    # image_answer = Image.open(screenshot_file_path_answer)
+    # image_answer = image_answer.convert('RGB')
 
-    # Get image dimensions for the answer
-    img_width_answer, img_height_answer = image_answer.size
-    mm_width_answer = img_width_answer * 0.264583
-    mm_height_answer = img_height_answer * 0.264583
+    # # Get image dimensions for the answer
+    # img_width_answer, img_height_answer = image_answer.size
+    # mm_width_answer = img_width_answer * 0.264583
+    # mm_height_answer = img_height_answer * 0.264583
 
-    # Add the answer image below the question image
-    pdf.image(screenshot_file_path_answer, 10, y_position + mm_height + 10, mm_width_answer, mm_height_answer)  # 10mm padding
+    # # Add the answer image below the question image
+    # pdf.image(screenshot_file_path_answer, 10, y_position + mm_height + 10, mm_width_answer, mm_height_answer)  # 10mm padding
 
-    # Save the updated PDF
-    pdf.output(pdf_file_path)
-    print(f"Screenshot added to PDF file at {pdf_file_path}")
+    # # Save the updated PDF
+    # pdf.output(pdf_file_path)
+    # print(f"Screenshot added to PDF file at {pdf_file_path}")
     
     # Optionally, remove the temporary screenshot files
-    os.remove(screenshot_file_path)
-    os.remove(screenshot_file_path_answer)
+    # os.remove(screenshot_file_path)
+    # os.remove(screenshot_file_path_answer)
 
 
 file_path = 'Link_Maths.json'
@@ -243,7 +243,7 @@ for chapter in range(1,8):
         
         
         try:
-            for i in range(1,2):
+            for i in range(1,10):
                 j+=1
                 suffix = '{:05}'.format(0 + j)
                 prefix = f'T{str(chapter).zfill(2)}'
