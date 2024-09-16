@@ -181,11 +181,12 @@ def take_element_screenshot(driver, element, folder_path, pdf_file_name, pdf, id
     # Add the ID at the top of the page
     pdf.set_font("Arial", size=12)
     pdf.cell(200, 10, f"ID: {id}", ln=True, align='L')  # ID text at the top left of the page
-    
+    time.sleep(4)
     # Capture screenshot of the question element and save it temporarily as a PNG
     screenshot_file_path = os.path.join(folder_path, f'q_{id}.png')
     element.screenshot(screenshot_file_path)
     print(f"Screenshot of element saved temporarily at {screenshot_file_path}")
+    time.sleep(4)
     
     # # Open the image using PIL and convert to RGB
     # image = Image.open(screenshot_file_path)
@@ -231,10 +232,11 @@ file_path = 'Link_Maths.json'
 with open(file_path, 'r', encoding='utf-8') as file:
     links_physics = json.load(file)
 
-j = 0
+
 for chapter in range(1,8):
+    j = 0
     for link in links_physics[str(chapter)]:
-            
+        
         driver = Create_webdriver()
         driver.get(link)
 
@@ -253,17 +255,18 @@ for chapter in range(1,8):
                     pdf = FPDF()
                     take_element_screenshot(driver, element=QAs, folder_path=f'pictures//Math//chap_{chapter}',
                                             pdf_file_name=f'qa_{id}',pdf=pdf, id = id)
+                    time.sleep(4)
                     question = get_question(driver)
                     difficulty = get_difficulty(driver)
                     options = get_options(driver)
                     src = get_url_image(driver)
-                    time.sleep(4)
+                    
                     
                     Click_next_question(driver)
+                    
                     # Dump_contents_Json(id, question, src, difficulty, options, answer, explain ,'Chemistry_C1.NO1.json')
-                
+
                     print(f"==================Question {i} processed and saved.=====================")
-                    break
                 except NoSuchElementException as e:
                     try:
                         time.sleep(4)
