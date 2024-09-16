@@ -238,7 +238,7 @@ for chapter in range(1,8):
                     QAs = get_QAs_element(driver)
                     pdf = FPDF()
                     take_element_screenshot(driver, element=QAs, folder_path=f'pictures//Math//chap_{chapter}',
-                                            pdf_file_name=f'link_{j}',pdf=pdf)
+                                            pdf_file_name=f'qa_{id}',pdf=pdf)
                     question = get_question(driver)
                     difficulty = get_difficulty(driver)
                     options = get_options(driver)
