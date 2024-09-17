@@ -9,7 +9,7 @@ import time
 import re
 import os
 from fpdf import FPDF
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 
 def Create_webdriver():
     options = webdriver.EdgeOptions()
@@ -165,69 +165,102 @@ def get_QAs_element(driver):
     QAs_element = driver.find_element(By.CSS_SELECTOR, 'div.col-sm-11')
     return QAs_element
 
-from PIL import Image
-import os
+def crop_and_convert_image_to_pdf(source_image_path, output_pdf_path, id, pixels_to_cut=165):
+    # Mở ảnh gốc
+    image = Image.open(source_image_path)
+    x2, y2 = image.size
+    print(x2, y2)
+    # Xác định vùng cần cắt (giữ từ trên đến (height - pixels_to_cut))
+    if 'q' in output_pdf_path:
+        crop_box = (0, 0, x2, y2 - pixels_to_cut)
+    else:   
+        crop_box = (0, 0, x2, y2)
+    
+    # Cắt ảnh theo tọa độ crop_box (giữ phần trên của ảnh)
+    cropped_image = image.crop(crop_box)
+    
+    # Tạo đối tượng ImageDraw để vẽ lên ảnh
+    draw = ImageDraw.Draw(cropped_image)
+    
+    
+    
+    # Thêm id vào ảnh
+    if 'q_' in output_pdf_path:
+        # Chọn font và kích thước chữ (bạn có thể tùy chỉnh)
+        try:
+            font = ImageFont.truetype("arial.ttf", 20)  # Thay thế đường dẫn tới file font nếu cần
+        except IOError:
+            font = ImageFont.load_default()  # Sử dụng font mặc định nếu không tìm thấy file font
 
-def take_element_screenshot(driver, element, folder_path, pdf_file_name, pdf, id):
-    # Check if the folder exists, if not, create it
+        # Vị trí bên trái trên cùng để chèn id
+        text_position = (5, 5)
+        
+        # Màu của văn bản (ở đây là màu đen)
+        text_color = (0, 0, 0)
+        draw.text(text_position, id, fill=text_color, font=font)
+    
+    # Chuyển đổi ảnh sang RGB (bắt buộc cho PDF)
+    cropped_image_rgb = cropped_image.convert('RGB')
+    
+    # Lưu ảnh đã cắt dưới dạng PDF
+    cropped_image_rgb.save(output_pdf_path)
+
+    print(f"Ảnh đã cắt và lưu thành PDF với id '{id}' được thêm vào.")
+
+
+import os
+from pypdf import PdfMerger
+
+def merge_pdfs(pdf_list, output_pdf):
+    merger = PdfMerger()
+    
+    # Thêm từng file PDF vào đối tượng merger
+    for pdf in pdf_list:
+        merger.append(pdf)
+    
+    # Lưu kết quả gộp thành file mới
+    merger.write(output_pdf)
+    merger.close()
+    print(f"Đã gộp các file PDF thành: {output_pdf}")
+
+def take_element_screenshot(driver, element, folder_path, pdf_file_name, pdf, id): 
+    # Kiểm tra nếu thư mục tồn tại, nếu không thì tạo mới
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
     
-    # Define the PDF file path
-    pdf_file_path = os.path.join(folder_path, pdf_file_name + '.pdf')
+    # Tạo một trang mới cho file PDF
+    pdf.add_page()
     
-    # Create a new PDF or load existing PDF
-    pdf.add_page()  # Add a page to start the PDF
-    
-    # Add the ID at the top of the page
-    pdf.set_font("Arial", size=12)
-    pdf.cell(200, 10, f"ID: {id}", ln=True, align='L')  # ID text at the top left of the page
     time.sleep(4)
-    # Capture screenshot of the question element and save it temporarily as a PNG
+    # Chụp ảnh màn hình của phần tử câu hỏi và lưu tạm thời dưới dạng PNG
     screenshot_file_path = os.path.join(folder_path, f'q_{id}.png')
     element.screenshot(screenshot_file_path)
-    print(f"Screenshot of element saved temporarily at {screenshot_file_path}")
     
-    
-    # # Open the image using PIL and convert to RGB
-    # image = Image.open(screenshot_file_path)
-    # image = image.convert('RGB')
-    
-    # # Get image dimensions and convert to millimeters (assuming 96 DPI)
-    # img_width, img_height = image.size
-    # mm_width = img_width * 0.264583
-    # mm_height = img_height * 0.264583
-
-    # # Add the question image below the ID
-    # y_position = 20  # Leave some space below the ID
-    # pdf.image(screenshot_file_path, 10, y_position, mm_width, mm_height)
-    
-    # Capture screenshot of the answer element and save it temporarily as a PNG
-    element2 = select_key_and_get_answer_and_explain(driver)  # Assuming this function returns a web element
+    # Chụp ảnh phần tử câu trả lời
+    element2 = select_key_and_get_answer_and_explain(driver)  # Giả sử hàm này trả về phần tử web
     screenshot_file_path_answer = os.path.join(folder_path, f'a_{id}.png')
     time.sleep(4)
     element2.screenshot(screenshot_file_path_answer)
-    print(f"Screenshot of answer saved temporarily at {screenshot_file_path_answer}")
+
+    # Loại bỏ phần mở rộng .png trước khi thêm .pdf
+    qa_pdf = os.path.splitext(screenshot_file_path)[0] + '.pdf'
+    qa_pdf_answer = os.path.splitext(screenshot_file_path_answer)[0] + '.pdf'
+
+    # Chuyển đổi ảnh PNG sang PDF
+    crop_and_convert_image_to_pdf(screenshot_file_path, qa_pdf, id, pixels_to_cut=165)
+    crop_and_convert_image_to_pdf(screenshot_file_path_answer, qa_pdf_answer, id, pixels_to_cut=165)
     
-    # # Open the answer image and convert to RGB
-    # image_answer = Image.open(screenshot_file_path_answer)
-    # image_answer = image_answer.convert('RGB')
+    # Gộp 2 file PDF lại với nhau
+    merged_pdf_path = os.path.join(folder_path, f'{id}.pdf')
+    merge_pdfs([qa_pdf, qa_pdf_answer], merged_pdf_path)
 
-    # # Get image dimensions for the answer
-    # img_width_answer, img_height_answer = image_answer.size
-    # mm_width_answer = img_width_answer * 0.264583
-    # mm_height_answer = img_height_answer * 0.264583
-
-    # # Add the answer image below the question image
-    # pdf.image(screenshot_file_path_answer, 10, y_position + mm_height + 10, mm_width_answer, mm_height_answer)  # 10mm padding
-
-    # # Save the updated PDF
-    # pdf.output(pdf_file_path)
-    # print(f"Screenshot added to PDF file at {pdf_file_path}")
+    # Xóa các file tạm
+    os.remove(screenshot_file_path_answer)
+    os.remove(screenshot_file_path)
+    os.remove(qa_pdf)
+    os.remove(qa_pdf_answer)
     
-    # Optionally, remove the temporary screenshot files
-    # os.remove(screenshot_file_path)
-    # os.remove(screenshot_file_path_answer)
+
 
 
 file_path = 'Link_Maths.json'
