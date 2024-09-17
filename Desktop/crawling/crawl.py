@@ -136,6 +136,7 @@ def select_key_and_get_answer_and_explain(driver):
     except:
         explain_text = driver.find_elements(By.CSS_SELECTOR,'div.solution-item')
         explain_element = explain_text[-1]
+    driver.execute_script("arguments[0].scrollIntoView();", explain_element)
     # take_element_screenshot(driver,explain_element,folder_path,file_name,pdf=pdf)
     # explain_text = explain_text[-1].text
     # explain_text_cleaned = re.sub(r'\s+', ' ', explain_text).strip()
@@ -186,7 +187,7 @@ def take_element_screenshot(driver, element, folder_path, pdf_file_name, pdf, id
     screenshot_file_path = os.path.join(folder_path, f'q_{id}.png')
     element.screenshot(screenshot_file_path)
     print(f"Screenshot of element saved temporarily at {screenshot_file_path}")
-    time.sleep(4)
+    
     
     # # Open the image using PIL and convert to RGB
     # image = Image.open(screenshot_file_path)
@@ -204,6 +205,7 @@ def take_element_screenshot(driver, element, folder_path, pdf_file_name, pdf, id
     # Capture screenshot of the answer element and save it temporarily as a PNG
     element2 = select_key_and_get_answer_and_explain(driver)  # Assuming this function returns a web element
     screenshot_file_path_answer = os.path.join(folder_path, f'a_{id}.png')
+    time.sleep(4)
     element2.screenshot(screenshot_file_path_answer)
     print(f"Screenshot of answer saved temporarily at {screenshot_file_path_answer}")
     
