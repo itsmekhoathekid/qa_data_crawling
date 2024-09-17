@@ -188,12 +188,12 @@ def crop_and_convert_image_to_pdf(source_image_path, output_pdf_path, id, pixels
     if 'q_' in output_pdf_path:
         # Chọn font và kích thước chữ (bạn có thể tùy chỉnh)
         try:
-            font = ImageFont.truetype("arial.ttf", 20)  # Thay thế đường dẫn tới file font nếu cần
+            font = ImageFont.truetype("arial.ttf", 30)  # Thay thế đường dẫn tới file font nếu cần
         except IOError:
             font = ImageFont.load_default()  # Sử dụng font mặc định nếu không tìm thấy file font
 
         # Vị trí bên trái trên cùng để chèn id
-        text_position = (5, 5)
+        text_position = (15, 15)
         
         # Màu của văn bản (ở đây là màu đen)
         text_color = (0, 0, 0)
@@ -288,7 +288,8 @@ for chapter in range(1,8):
                 with open('Link_Maths.json', 'r', encoding='utf-8') as file:
                     links_physics = json.load(file)
                     dic1 = links_physics[str(chapter)]
-                    lesson = dic1[link]
+                    lesson = int(dic1[link])
+                    
                 lesson_str = '{:02}'.format(lesson)
                 suffix = '{}{:03}'.format(lesson_str, j)
                 prefix = f'T{str(chapter).zfill(2)}'
