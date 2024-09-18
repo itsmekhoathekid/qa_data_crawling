@@ -270,6 +270,12 @@ subject = {
     3:'Chemistry'
 }
 
+subject_fw = {
+    1 : 'T',
+    2 : 'L',
+    3 : 'H'
+}
+
 file_path = f'Link_{subject[2]}.json'
 with open(file_path, 'r', encoding='utf-8') as file:
     links_physics = json.load(file)
@@ -286,7 +292,7 @@ for chapter in range(1,8):
         
         
         try:
-            for i in range(1,10):
+            for i in range(1,33):
 
 
 
@@ -298,7 +304,8 @@ for chapter in range(1,8):
                     
                 lesson_str = '{:02}'.format(lesson)
                 suffix = '{}{:03}'.format(lesson_str, j)
-                prefix = f'T{str(chapter).zfill(2)}'
+                subject_fww = subject_fw[2]
+                prefix = f'{subject_fww}{str(chapter).zfill(2)}'
                 id = f"{prefix}{suffix}"
                 try:
                     QAs = get_QAs_element(driver)
