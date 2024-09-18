@@ -263,10 +263,16 @@ def take_element_screenshot(driver, element, folder_path, pdf_file_name, pdf, id
 
 
 
-file_path = 'Link_Maths.json'
+
+subject = {
+    1:'Maths',
+    2:'Physics',
+    3:'Chemistry'
+}
+
+file_path = f'Link_{subject[2]}.json'
 with open(file_path, 'r', encoding='utf-8') as file:
     links_physics = json.load(file)
-
 
 for chapter in range(1,8):
     j = 0
@@ -285,7 +291,7 @@ for chapter in range(1,8):
 
 
                 j+=1
-                with open('Link_Maths.json', 'r', encoding='utf-8') as file:
+                with open(f'Link_{subject[2]}.json', 'r', encoding='utf-8') as file:
                     links_physics = json.load(file)
                     dic1 = links_physics[str(chapter)]
                     lesson = int(dic1[link])
@@ -297,7 +303,7 @@ for chapter in range(1,8):
                 try:
                     QAs = get_QAs_element(driver)
                     pdf = FPDF()
-                    take_element_screenshot(driver, element=QAs, folder_path=f'pictures//Math//chap_{chapter}',
+                    take_element_screenshot(driver, element=QAs, folder_path=f'pictures//{subject[2]}//chap_{chapter}',
                                             pdf_file_name=f'qa_{id}',pdf=pdf, id = id)
                     time.sleep(4)
                     question = get_question(driver)
