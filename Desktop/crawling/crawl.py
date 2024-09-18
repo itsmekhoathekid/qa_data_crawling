@@ -210,9 +210,10 @@ def crop_and_convert_image_to_pdf(source_image_path, output_pdf_path, id, pixels
 
 import os
 from pypdf import PdfMerger
+from PyPDF2 import PdfWriter
 
 def merge_pdfs(pdf_list, output_pdf):
-    merger = PdfMerger()
+    merger = PdfWriter()
     
     # Thêm từng file PDF vào đối tượng merger
     for pdf in pdf_list:
@@ -276,8 +277,8 @@ subject_fw = {
     3 : 'H'
 }
 
-file_path = f'Link_{subject[2]}.json'
-with open(file_path, 'r', encoding='utf-8') as file:
+file_path = f'Link_{subject[3]}.json'
+with open('D:\Code\Python\projects\qa_data_crawling\Desktop\crawling\Link_Chemistry.json', 'r', encoding='utf-8') as file:
     links_physics = json.load(file)
 
 for chapter in range(1,8):
@@ -292,12 +293,10 @@ for chapter in range(1,8):
         
         
         try:
-            for i in range(1,10):
-
-
+            for i in range(1,33):
 
                 j+=1
-                with open(f'Link_{subject[2]}.json', 'r', encoding='utf-8') as file:
+                with open(f'D:\Code\Python\projects\qa_data_crawling\Desktop\crawling\Link_Chemistry.json', 'r', encoding='utf-8') as file:
                     links_physics = json.load(file)
                     dic1 = links_physics[str(chapter)]
                     lesson = int(lesson)
@@ -310,17 +309,24 @@ for chapter in range(1,8):
                 try:
                     QAs = get_QAs_element(driver)
                     pdf = FPDF()
-                    take_element_screenshot(driver, element=QAs, folder_path=f'pictures//{subject[2]}//chap_{chapter}',
+                    take_element_screenshot(driver, element=QAs, folder_path=f'D:/Code/Python/projects/Data//{subject[3]}//chap_{chapter}',
                                             pdf_file_name=f'qa_{id}',pdf=pdf, id = id)
                     time.sleep(4)
                     question = get_question(driver)
                     difficulty = get_difficulty(driver)
                     options = get_options(driver)
                     src = get_url_image(driver)
-                    
+
+                    image_structure = {
+                        "id":id,
+                        "image_source":src
+                    }   
+                    file_path = os.path.join(f'D:\Code\Python\projects\Data', 'image_structure.json')
+                    with open(file_path, 'a', encoding='utf-8') as json_file:
+                        json.dump(image_structure, json_file, ensure_ascii=False, indent=4)
                     
                     Click_next_question(driver)
-                    
+
                     # Dump_contents_Json(id, question, src, difficulty, options, answer, explain ,'Chemistry_C1.NO1.json')
 
                     print(f"==================Question {i} processed and saved.=====================")
@@ -333,7 +339,7 @@ for chapter in range(1,8):
                     except:
                         continue
         
-                
+
         finally:
             # print("==============xong==================")
             driver.quit()    
