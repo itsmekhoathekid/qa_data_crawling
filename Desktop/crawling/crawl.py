@@ -282,7 +282,7 @@ with open(file_path, 'r', encoding='utf-8') as file:
 
 for chapter in range(1,8):
     j = 0
-    for link in links_physics[str(chapter)].keys():
+    for lesson, link in links_physics[str(chapter)].items():
         
         driver = Create_webdriver()
         driver.get(link)
@@ -292,7 +292,7 @@ for chapter in range(1,8):
         
         
         try:
-            for i in range(1,33):
+            for i in range(1,10):
 
 
 
@@ -300,7 +300,7 @@ for chapter in range(1,8):
                 with open(f'Link_{subject[2]}.json', 'r', encoding='utf-8') as file:
                     links_physics = json.load(file)
                     dic1 = links_physics[str(chapter)]
-                    lesson = int(dic1[link])
+                    lesson = int(lesson)
                     
                 lesson_str = '{:02}'.format(lesson)
                 suffix = '{}{:03}'.format(lesson_str, j)
