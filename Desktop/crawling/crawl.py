@@ -138,12 +138,12 @@ def select_key_and_get_answer_and_explain(driver):
         explain_element = explain_text[-1]
     driver.execute_script("arguments[0].scrollIntoView();", explain_element)
     # take_element_screenshot(driver,explain_element,folder_path,file_name,pdf=pdf)
-    # explain_text = explain_text[-1].text
-    # explain_text_cleaned = re.sub(r'\s+', ' ', explain_text).strip()
+    explain_text = explain_text[-1].text
+    explain_text_cleaned = re.sub(r'\s+', ' ', explain_text).strip()
     # print(explain_text_cleaned)
-    # key_answer = explain_text_cleaned[-1]
+    key_answer = explain_text_cleaned[-1]
     # print(key_answer)
-    return explain_element
+    return key_answer
 
 def get_url_image(driver):
     try:
@@ -210,10 +210,9 @@ def crop_and_convert_image_to_pdf(source_image_path, output_pdf_path, id, pixels
 
 import os
 from pypdf import PdfMerger
-from PyPDF2 import PdfWriter
 
 def merge_pdfs(pdf_list, output_pdf):
-    merger = PdfWriter()
+    merger = PdfMerger()
     
     # Thêm từng file PDF vào đối tượng merger
     for pdf in pdf_list:
@@ -277,8 +276,12 @@ subject_fw = {
     3 : 'H'
 }
 
-file_path = f'Link_{subject[3]}.json'
-with open('D:\Code\Python\projects\qa_data_crawling\Desktop\crawling\Link_Chemistry copy.json', 'r', encoding='utf-8') as file:
+
+
+# crawl hoa
+k = 1
+file_path = f'Link_{subject[k]}.json'
+with open(file_path, 'r', encoding='utf-8') as file:
     links_physics = json.load(file)
 
 for chapter in range(1,8):
@@ -291,18 +294,21 @@ for chapter in range(1,8):
         Click_start_button(driver)
         Select_type_of_question(driver)
         
+        
         try:
             for i in range(1,6):
 
+
+
                 j+=1
-                with open(f'D:\Code\Python\projects\qa_data_crawling\Desktop\crawling\Link_Chemistry copy.json', 'r', encoding='utf-8') as file:
+                with open(f'Link_{subject[k]}.json', 'r', encoding='utf-8') as file:
                     links_physics = json.load(file)
                     dic1 = links_physics[str(chapter)]
                     lesson = int(lesson)
                     
                 lesson_str = '{:02}'.format(lesson)
                 suffix = '{}{:03}'.format(lesson_str, j)
-                subject_fww = subject_fw[3]
+                subject_fww = subject_fw[k]
                 prefix = f'{subject_fww}{str(chapter).zfill(2)}'
                 id = f"{prefix}{suffix}"
                 try:
@@ -323,13 +329,13 @@ for chapter in range(1,8):
                         "image_source":src,
                         "difficulty": difficulty,
                         "answer": answer,
-                    }    
-                    file_path = os.path.join(f'D:\Code\Python\projects\Data', 'image_structure.json')
+                    }   
+                    file_path = os.path.join(f'data', 'maths.json')
                     with open(file_path, 'a', encoding='utf-8') as json_file:
                         json.dump(image_structure, json_file, ensure_ascii=False, indent=4)
                     
                     Click_next_question(driver)
-
+                    
                     # Dump_contents_Json(id, question, src, difficulty, options, answer, explain ,'Chemistry_C1.NO1.json')
 
                     print(f"==================Question {i} processed and saved.=====================")
@@ -342,7 +348,7 @@ for chapter in range(1,8):
                     except:
                         continue
         
-
+                
         finally:
             # print("==============xong==================")
             driver.quit()    
