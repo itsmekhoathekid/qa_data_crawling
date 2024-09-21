@@ -308,8 +308,9 @@ for chapter in range(1,8):
                 try:
                     QAs = get_QAs_element(driver)
                     pdf = FPDF()
-                    take_element_screenshot(driver, element=QAs, folder_path=f'D:/Code/Python/projects/Data//{subject[3]}//chap_{chapter}',
-                                            pdf_file_name=f'qa_{id}',pdf=pdf, id = id)
+                    select_key_and_get_answer_and_explain(driver)
+                    # take_element_screenshot(driver, element=QAs, folder_path=f'pictures//{subject[k]}//chap_{chapter}',
+                    #                         pdf_file_name=f'qa_{id}',pdf=pdf, id = id)
                     time.sleep(4)
                     question = get_question(driver)
                     difficulty = get_difficulty(driver)
