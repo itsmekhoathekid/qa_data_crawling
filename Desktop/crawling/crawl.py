@@ -308,10 +308,11 @@ for chapter in range(1,8):
                 try:
                     QAs = get_QAs_element(driver)
                     pdf = FPDF()
-                    select_key_and_get_answer_and_explain(driver)
+                    answer = select_key_and_get_answer_and_explain(driver)
                     # take_element_screenshot(driver, element=QAs, folder_path=f'pictures//{subject[k]}//chap_{chapter}',
                     #                         pdf_file_name=f'qa_{id}',pdf=pdf, id = id)
                     time.sleep(4)
+                    
                     question = get_question(driver)
                     difficulty = get_difficulty(driver)
                     options = get_options(driver)
@@ -321,7 +322,7 @@ for chapter in range(1,8):
                         "id":id,
                         "image_source":src,
                         "difficulty": difficulty,
-                        "options" : options
+                        "answer": answer,
                     }    
                     file_path = os.path.join(f'D:\Code\Python\projects\Data', 'image_structure.json')
                     with open(file_path, 'a', encoding='utf-8') as json_file:
