@@ -319,8 +319,9 @@ for chapter in range(1,8):
                     image_structure = {
                         "id":id,
                         "image_source":src,
-                        "difficulty": difficulty
-                    }   
+                        "difficulty": difficulty,
+                        "options" : options
+                    }    
                     file_path = os.path.join(f'D:\Code\Python\projects\Data', 'image_structure.json')
                     with open(file_path, 'a', encoding='utf-8') as json_file:
                         json.dump(image_structure, json_file, ensure_ascii=False, indent=4)
