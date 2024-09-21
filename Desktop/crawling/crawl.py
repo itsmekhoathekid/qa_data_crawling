@@ -278,7 +278,7 @@ subject_fw = {
 }
 
 file_path = f'Link_{subject[3]}.json'
-with open('D:\Code\Python\projects\qa_data_crawling\Desktop\crawling\Link_Chemistry.json', 'r', encoding='utf-8') as file:
+with open('D:\Code\Python\projects\qa_data_crawling\Desktop\crawling\Link_Chemistry copy.json', 'r', encoding='utf-8') as file:
     links_physics = json.load(file)
 
 for chapter in range(1,8):
@@ -291,19 +291,18 @@ for chapter in range(1,8):
         Click_start_button(driver)
         Select_type_of_question(driver)
         
-        
         try:
-            for i in range(1,33):
+            for i in range(1,6):
 
                 j+=1
-                with open(f'D:\Code\Python\projects\qa_data_crawling\Desktop\crawling\Link_Chemistry.json', 'r', encoding='utf-8') as file:
+                with open(f'D:\Code\Python\projects\qa_data_crawling\Desktop\crawling\Link_Chemistry copy.json', 'r', encoding='utf-8') as file:
                     links_physics = json.load(file)
                     dic1 = links_physics[str(chapter)]
                     lesson = int(lesson)
                     
                 lesson_str = '{:02}'.format(lesson)
                 suffix = '{}{:03}'.format(lesson_str, j)
-                subject_fww = subject_fw[2]
+                subject_fww = subject_fw[3]
                 prefix = f'{subject_fww}{str(chapter).zfill(2)}'
                 id = f"{prefix}{suffix}"
                 try:
@@ -319,7 +318,8 @@ for chapter in range(1,8):
 
                     image_structure = {
                         "id":id,
-                        "image_source":src
+                        "image_source":src,
+                        "difficulty": difficulty
                     }   
                     file_path = os.path.join(f'D:\Code\Python\projects\Data', 'image_structure.json')
                     with open(file_path, 'a', encoding='utf-8') as json_file:
