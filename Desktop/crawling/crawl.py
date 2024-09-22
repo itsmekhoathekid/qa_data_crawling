@@ -143,7 +143,7 @@ def select_key_and_get_answer_and_explain(driver):
     # print(explain_text_cleaned)
     key_answer = explain_text_cleaned[-1]
     # print(key_answer)
-    return key_answer
+    return key_answer, explain_element
 
 def get_url_image(driver):
     try:
@@ -237,7 +237,7 @@ def take_element_screenshot(driver, element, folder_path, pdf_file_name, pdf, id
     element.screenshot(screenshot_file_path)
     
     # Chụp ảnh phần tử câu trả lời
-    element2 = select_key_and_get_answer_and_explain(driver)  # Giả sử hàm này trả về phần tử web
+    key_ans, element2 = select_key_and_get_answer_and_explain(driver)  # Giả sử hàm này trả về phần tử web
     screenshot_file_path_answer = os.path.join(folder_path, f'a_{id}.png')
     time.sleep(4)
     element2.screenshot(screenshot_file_path_answer)
@@ -259,6 +259,7 @@ def take_element_screenshot(driver, element, folder_path, pdf_file_name, pdf, id
     os.remove(screenshot_file_path)
     os.remove(qa_pdf)
     os.remove(qa_pdf_answer)
+    return key_ans
     
 
 
@@ -284,6 +285,38 @@ file_path = f'Link_{subject[k]}.json'
 with open(file_path, 'r', encoding='utf-8') as file:
     links_physics = json.load(file)
 
+
+def dump_link(id, src, difficulty, answer, subject_name):
+    image_structure = {
+        "id": id,
+        "image_source": src,
+        "difficulty": difficulty,
+        "answer": answer,
+    }
+
+    # Đường dẫn tới file JSON
+    file_path = os.path.join('data', f'{subject_name}.json')
+
+    # Kiểm tra xem tệp đã tồn tại chưa, nếu có thì đọc nội dung hiện có
+    if os.path.exists(file_path):
+        with open(file_path, 'r', encoding='utf-8') as json_file:
+            try:
+                # Đọc dữ liệu hiện có và nạp vào một danh sách
+                data = json.load(json_file)
+            except json.JSONDecodeError:
+                # Nếu tệp trống hoặc có lỗi, bắt đầu với danh sách rỗng
+                data = []
+    else:
+        # Nếu tệp chưa tồn tại, bắt đầu với danh sách rỗng
+        data = []
+
+    # Thêm cấu trúc hình ảnh mới vào danh sách
+    data.append(image_structure)
+
+    # Ghi lại toàn bộ dữ liệu vào file JSON
+    with open(file_path, 'w', encoding='utf-8') as json_file:
+        json.dump(data, json_file, ensure_ascii=False, indent=4)
+    
 for chapter in range(1,8):
     j = 0
     for lesson, link in links_physics[str(chapter)].items():
@@ -314,9 +347,10 @@ for chapter in range(1,8):
                 try:
                     QAs = get_QAs_element(driver)
                     pdf = FPDF()
-                    answer = select_key_and_get_answer_and_explain(driver)
-                    # take_element_screenshot(driver, element=QAs, folder_path=f'pictures//{subject[k]}//chap_{chapter}',
-                    #                         pdf_file_name=f'qa_{id}',pdf=pdf, id = id)
+                    
+                    answer = take_element_screenshot(driver, element=QAs, folder_path=f'pictures//{subject[k]}//chap_{chapter}',
+                                            pdf_file_name=f'qa_{id}',pdf=pdf, id = id)
+                    
                     time.sleep(4)
                     
                     question = get_question(driver)
@@ -324,15 +358,7 @@ for chapter in range(1,8):
                     options = get_options(driver)
                     src = get_url_image(driver)
 
-                    image_structure = {
-                        "id":id,
-                        "image_source":src,
-                        "difficulty": difficulty,
-                        "answer": answer,
-                    }   
-                    file_path = os.path.join(f'data', 'maths.json')
-                    with open(file_path, 'a', encoding='utf-8') as json_file:
-                        json.dump(image_structure, json_file, ensure_ascii=False, indent=4)
+                    dump_link(id, src, difficulty, answer, subject[k])
                     
                     Click_next_question(driver)
                     
